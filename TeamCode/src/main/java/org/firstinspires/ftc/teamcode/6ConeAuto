@@ -1,0 +1,196 @@
+Trajectory traj1 = drive.trajectoryBuilder(startPose)
+                .addDisplacementMarker(0, () -> {
+                    ClawClose();
+                    ArmTop();
+                 })
+                .splineToSplineHeading(new Pose2d(36, 56, Math.toRadians(-45)), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(36, 12, Math.toRadians(-20)), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(placeDistance, 7, Math.toRadians(0)), Math.toRadians(165))
+                .addSpatialMarker(new Vector2d(36, 56), () -> {
+                    TurnTablePos(TURNTABLE_RIGHT);
+                })
+                .build();
+
+       /* Trajectory traj1 = drive.trajectoryBuilder(startPose)
+                .addDisplacementMarker(0, () -> {
+                    ClawClose();
+                    ArmTop();
+                })
+                .splineToSplineHeading(new Pose2d(36, 56, Math.toRadians(-90)), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(28, 12, Math.toRadians(0)), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(placeDistance, 6, Math.toRadians(20)), Math.toRadians(165))
+                .addSpatialMarker(new Vector2d(36, 56), () -> {
+                    TurnTablePos(TURNTABLE_RIGHT);
+                })
+                .build();*/
+
+        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
+                .addDisplacementMarker(0, () -> {
+                    ClawOpen();
+                })
+                .lineToSplineHeading(new Pose2d(stackDistance, 12, Math.toRadians(0)))
+                .addDisplacementMarker(4, () -> {
+                    ArmSetPos(cycleArmPosition[0]);
+                    TurnTablePos(TURNTABLE_FRONT);
+                    sleep(20);
+                })
+                .addSpatialMarker(new Vector2d(40, 12), () -> {
+                    ClawOpen();
+                })
+                .addSpatialMarker(new Vector2d(stackDistance, 12), () -> {
+                    ClawClose();
+                    sleep(100);
+                    ArmTop();
+                })
+                .build();
+
+        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+                .lineToSplineHeading(new Pose2d(placeDistance, 7, Math.toRadians(0)))
+                .addSpatialMarker(new Vector2d(52, 6), () -> {
+                    TurnTablePos(TURNTABLE_RIGHT);
+                })
+                .build();
+
+        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
+                .lineToSplineHeading(new Pose2d(stackDistance, 12, Math.toRadians(0)))
+                .addDisplacementMarker(0, () -> {
+                    ClawOpen();
+                })
+                .addDisplacementMarker(4, () -> {
+                    ArmSetPos(cycleArmPosition[1]);
+                    TurnTablePos(TURNTABLE_FRONT);
+                    sleep(20);
+                })
+                .addSpatialMarker(new Vector2d(40, 12), () -> {
+                    ClawOpen();
+                })
+                .addSpatialMarker(new Vector2d(stackDistance, 12), () -> {
+                    ClawClose();
+                    sleep(100);
+                    ArmTop();
+                })
+                .build();
+
+        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
+                .lineToSplineHeading(new Pose2d(placeDistance, 7, Math.toRadians(0)))
+                .addSpatialMarker(new Vector2d(52, 6), () -> {
+                    TurnTablePos(TURNTABLE_RIGHT);
+                })
+                .build();
+
+        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
+                .lineToSplineHeading(new Pose2d(stackDistance, 12, Math.toRadians(0)))
+                .addDisplacementMarker(0, () -> {
+                    ClawOpen();
+                })
+                .addDisplacementMarker(4, () -> {
+                    ArmSetPos(cycleArmPosition[2]);
+                    TurnTablePos(TURNTABLE_FRONT);
+                    sleep(20);
+                })
+                .addSpatialMarker(new Vector2d(40, 12), () -> {
+                    ClawOpen();
+                })
+                .addSpatialMarker(new Vector2d(stackDistance, 12), () -> {
+                    ClawClose();
+                    sleep(100);
+                    ArmTop();
+                })
+                .build();
+
+        Trajectory traj7 = drive.trajectoryBuilder(traj6.end())
+                .lineToSplineHeading(new Pose2d(placeDistance, 7, Math.toRadians(0)))
+                .addSpatialMarker(new Vector2d(52, 6), () -> {
+                    TurnTablePos(TURNTABLE_RIGHT);
+                })
+                .build();
+
+        Trajectory traj8 = drive.trajectoryBuilder(traj7.end())
+                .lineToSplineHeading(new Pose2d(stackDistance, 12, Math.toRadians(0)))
+                .addDisplacementMarker(0, () -> {
+                    ClawOpen();
+                })
+                .addDisplacementMarker(4, () -> {
+                    ArmSetPos(cycleArmPosition[3]);
+                    TurnTablePos(TURNTABLE_FRONT);
+                    sleep(20);
+                })
+                .addSpatialMarker(new Vector2d(40, 12), () -> {
+                    ClawOpen();
+                    sleep(20);
+                })
+                .addSpatialMarker(new Vector2d(stackDistance, 12), () -> {
+                    ClawClose();
+                    sleep(100);
+                    ArmTop();
+                })
+                .build();
+
+        Trajectory traj9 = drive.trajectoryBuilder(traj8.end())
+                .lineToSplineHeading(new Pose2d(placeDistance, 7, Math.toRadians(0)))
+                .addSpatialMarker(new Vector2d(52, 6), () -> {
+                    TurnTablePos(TURNTABLE_RIGHT);
+                })
+                .build();
+
+        Trajectory traj10 = drive.trajectoryBuilder(traj9.end())
+                .lineToSplineHeading(new Pose2d(stackDistance, 12, Math.toRadians(0)))
+                .addDisplacementMarker(0, () -> {
+                    ClawOpen();
+                })
+                .addDisplacementMarker(4, () -> {
+                    ArmSetPos(cycleArmPosition[4]);
+                    TurnTablePos(TURNTABLE_FRONT);
+                    sleep(20);
+                })
+                .addSpatialMarker(new Vector2d(40, 12), () -> {
+                    ClawOpen();
+                    sleep(20);
+                })
+                .addSpatialMarker(new Vector2d(stackDistance, 12), () -> {
+                    ClawClose();
+                    sleep(100);
+                    ArmTop();
+                })
+                .build();
+
+        Trajectory traj11 = drive.trajectoryBuilder(traj10.end())
+                .lineToSplineHeading(new Pose2d(placeDistance, 7, Math.toRadians(0)))
+                .addSpatialMarker(new Vector2d(52, 6), () -> {
+                    TurnTablePos(TURNTABLE_RIGHT);
+                })
+                .build();
+
+        Trajectory traj12 = drive.trajectoryBuilder(traj11.end())
+                .strafeLeft(6)
+                .build();
+
+        // First parking location
+        Trajectory P1 = drive.trajectoryBuilder(traj11.end())
+                .addDisplacementMarker(0, () -> {
+                    TurnTablePos(TURNTABLE_FRONT);
+                    ClawOpen();
+                    ArmReset();
+                })
+                .forward(34)
+                .build();
+
+        // Second parking location
+        Trajectory P2 = drive.trajectoryBuilder(traj11.end())
+                .addDisplacementMarker(0, () -> {
+                    TurnTablePos(TURNTABLE_FRONT);
+                    ClawOpen();
+                    ArmReset();
+                })
+                .forward(7)
+                .build();
+
+        // Third parking location
+        Trajectory P3 = drive.trajectoryBuilder(traj11.end())
+                .addDisplacementMarker(0, () -> {
+                    TurnTablePos(TURNTABLE_FRONT);
+                    ClawOpen();
+                    ArmReset();
+                })
+                .back(12)
+                .build();
