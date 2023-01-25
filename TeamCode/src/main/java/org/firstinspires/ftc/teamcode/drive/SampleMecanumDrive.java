@@ -54,7 +54,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(3, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(6, .5, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -123,6 +123,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         BackRight = hardwareMap.get(DcMotorEx.class, "BackRight");
 
         FrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        FrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         BackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motors = Arrays.asList(FrontLeft, BackLeft, BackRight, FrontRight);

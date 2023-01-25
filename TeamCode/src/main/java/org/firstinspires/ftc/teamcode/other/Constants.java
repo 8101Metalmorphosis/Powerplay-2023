@@ -7,10 +7,10 @@ public class Constants {
     }
 
     public static class ArmConstants {
-        public static int maxArmPosition = 3858;
+        public static int maxArmPosition = 3500;
         public static int lowArmPosition = -5;
 
-        public static int highJuncArmPosition = 3500;
+        public static int highJuncArmPosition = 3300;
         public static int midJuncArmPosition = 2230;
         public static int lowJuncArmPosition = 1200;
 
