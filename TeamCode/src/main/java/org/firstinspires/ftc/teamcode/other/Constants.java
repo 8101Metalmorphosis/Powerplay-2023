@@ -15,7 +15,9 @@ public class Constants {
         public static int lowJuncArmPosition = 1200;
 
         public static int armThreshold = 650;
-        public static int armInterval = 400;
+        public static int armInterval = 500;
+
+        public static int armPower = 1;
     }
 
     public static class TurnTableConstants {

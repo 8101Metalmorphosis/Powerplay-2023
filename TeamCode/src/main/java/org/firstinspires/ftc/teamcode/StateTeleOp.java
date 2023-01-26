@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // Motors
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 // IMU
@@ -25,16 +26,16 @@ import org.firstinspires.ftc.teamcode.other.Threshold;
 
 public class StateTeleOp extends LinearOpMode {
 
-    private DcMotor FrontLeft;
-    private DcMotor FrontRight;
-    private DcMotor BackLeft;
-    private DcMotor BackRight;
+    private DcMotorEx FrontLeft;
+    private DcMotorEx FrontRight;
+    private DcMotorEx BackLeft;
+    private DcMotorEx BackRight;
 
 
-    private DcMotor Arm;
+    private DcMotorEx Arm;
+    private DcMotorEx TurnTable;
+
     private Servo Claw;
-
-    private DcMotor TurnTable;
 
     private BNO055IMU imu;
 
@@ -87,17 +88,19 @@ public class StateTeleOp extends LinearOpMode {
     double clawOpenPosition = Constants.ClawConstants.openPosition;
     double clawClosePosition = Constants.ClawConstants.closePosition;
 
+
+
     @Override
     public void runOpMode() {
 
-        FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
-        FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
-        BackLeft = hardwareMap.get(DcMotor.class, "BackLeft");
-        BackRight = hardwareMap.get(DcMotor.class, "BackRight");
+        FrontLeft = hardwareMap.get(DcMotorEx.class, "FrontLeft");
+        FrontRight = hardwareMap.get(DcMotorEx.class, "FrontRight");
+        BackLeft = hardwareMap.get(DcMotorEx.class, "BackLeft");
+        BackRight = hardwareMap.get(DcMotorEx.class, "BackRight");
 
-        Arm = hardwareMap.get(DcMotor.class, "Arm");
+        Arm = hardwareMap.get(DcMotorEx.class, "Arm");
         Claw = hardwareMap.get(Servo.class, "Claw");
-        TurnTable = hardwareMap.get(DcMotor.class, "TurnTable");
+        TurnTable = hardwareMap.get(DcMotorEx.class, "TurnTable");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
@@ -178,6 +181,10 @@ public class StateTeleOp extends LinearOpMode {
                 gamepad2.stopRumble();
             }
 
+            // Mecanum Inputs
+            double LY = -gamepad1.left_stick_y;
+            double LX = gamepad1.left_stick_x;
+            double RX = gamepad1.right_stick_x;
 
             double robotYaw = imu.getAngularOrientation().firstAngle;
             double robotRoll = imu.getAngularOrientation().secondAngle;
@@ -185,15 +192,14 @@ public class StateTeleOp extends LinearOpMode {
 
             if (Threshold.innerThresholdEqual(Math.toDegrees(robotRoll), 0, 3, 3)) {
                 robotRoll = 0;
+                RX = 0;
             }
             if (Threshold.innerThresholdEqual(Math.toDegrees(robotPitch), 0, 5, 5)) {
                 robotPitch = 0;
+                RX = 0;
             }
 
-            // Mecanum Inputs
-            double LY = -gamepad1.left_stick_y;
-            double LX = gamepad1.left_stick_x;
-            double RX = gamepad1.right_stick_x;
+
 
             Mecanum(LY, LX, RX, speedLimiter, robotRoll * 3, robotPitch * 3);
 
@@ -328,16 +334,16 @@ public class StateTeleOp extends LinearOpMode {
                 leftMacro = true;
             }
 
-            if(leftMacro == true){
-                LeftMacro();
-            }
-
-
             if (gamepad2.right_bumper) {
                 rightMacro = true;
             }
 
-            if(rightMacro == true){
+
+            if(leftMacro){
+                LeftMacro();
+            }
+
+            if(rightMacro){
                 RightMacro();
             }
 
@@ -411,6 +417,7 @@ public class StateTeleOp extends LinearOpMode {
     private void LeftMacro(){
         if(Threshold.innerThreshold(TurnTable.getCurrentPosition(), turnTableLeft, -50, 50)){
             Arm.setTargetPosition(0);
+            Claw.setPosition(clawOpenPosition);
             leftMacro = false;
         } else if(Arm.getCurrentPosition() < armThreshold){
             Arm.setTargetPosition(armThreshold);
@@ -422,6 +429,7 @@ public class StateTeleOp extends LinearOpMode {
     private void RightMacro(){
         if(Threshold.innerThreshold(TurnTable.getCurrentPosition(), turnTableRight, -50, 50)){
             Arm.setTargetPosition(0);
+            Claw.setPosition(clawOpenPosition);
             rightMacro = false;
         } else if(Arm.getCurrentPosition() < armThreshold){
             Arm.setTargetPosition(armThreshold);
