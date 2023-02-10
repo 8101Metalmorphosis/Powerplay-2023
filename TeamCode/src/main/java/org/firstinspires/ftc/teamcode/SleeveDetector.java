@@ -30,8 +30,8 @@ class SleeveDetector extends OpenCvPipeline
     private Location location;
 
     static final Rect Sleeve_ROI = new Rect(
-            new Point(30, 25),
-            new Point(90, 100));
+            new Point(25, 0),
+            new Point(110, 110));
 
 
     public SleeveDetector(Telemetry t) {telemetry = t;}

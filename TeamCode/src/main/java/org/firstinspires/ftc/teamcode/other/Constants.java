@@ -10,9 +10,9 @@ public class Constants {
         public static int maxArmPosition = 3500;
         public static int lowArmPosition = -5;
 
-        public static int highJuncArmPosition = 3300;
-        public static int midJuncArmPosition = 2230;
-        public static int lowJuncArmPosition = 1200;
+        public static int highJuncArmPosition = 3400; // 3266
+        public static int midJuncArmPosition = 2500; // 2353
+        public static int lowJuncArmPosition = 1500; // 1329
 
         public static int armThreshold = 650;
         public static int armInterval = 500;
@@ -30,11 +30,14 @@ public class Constants {
     }
 
     public static class ClawConstants {
-        public static double closePosition = .1;
-        public static double openPosition = .6;
+        public static double closePosition = .25;
+        public static double openPosition = 1;
     }
 
     public static class OtherConstants {
 
     }
+
+//    (if)sin city
+//        {enter} not made for you
 }

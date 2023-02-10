@@ -16,7 +16,7 @@ public class PIDController {
     private double derivative;
     private double integralSum;
 
-    private double output;
+    public double output;
 
 
     ElapsedTime timer = new ElapsedTime();
@@ -36,7 +36,10 @@ public class PIDController {
 
         integralSum = integralSum + (error * timer.seconds());
 
+
         output = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
+
+        lastError = error;
     }
 
     public void resetTimer(){

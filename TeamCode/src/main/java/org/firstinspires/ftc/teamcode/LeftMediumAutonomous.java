@@ -22,8 +22,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 
-@Autonomous(name="Left Autonomous", group="! State", preselectTeleOp="State TeleOp")
-public class LeftAutonomous extends LinearOpMode {
+@Autonomous(name="Left Medium Autonomous", group="! State", preselectTeleOp="State TeleOp")
+public class LeftMediumAutonomous extends LinearOpMode {
 
     // Chassis Wheels
     private DcMotor FrontLeft;
@@ -170,7 +170,7 @@ public class LeftAutonomous extends LinearOpMode {
 
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Pose2d startPose = new Pose2d(30.5, 64.25, Math.toRadians(-90));
+        Pose2d startPose = new Pose2d(30.5, 64.5, Math.toRadians(-90));
         drive.setPoseEstimate(startPose);
 
 /*      Trajectory format & displacementMarker
@@ -188,31 +188,28 @@ public class LeftAutonomous extends LinearOpMode {
         final int TURNTABLE_RIGHT = Constants.TurnTableConstants.TURNTABLE_RIGHT;
         final int TURNTABLE_BACK = Constants.TurnTableConstants.TURNTABLE_BACK;
 
-        float placeX = 26f;
-        float placeY = 10.75f;
+        float placeX = 25f;
+        float placeY = 13f;
 
-        float turnOffset = 1f;
-        float clawOffset = 1f;
-        float armOffset = 12f;
+        float placeOffset = 1f;
+        float turnOffset = 1;
+        float armOffset = 12;
 
         float stackX = 59.5f;
-        float stackY = 11.5f;
+        float stackY = 12.25f;
 
 
 
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .splineToConstantHeading(new Vector2d(36, 40), Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(36, 50), Math.toRadians(-90))
                 .addDisplacementMarker(0, () -> {
                     ClawClose();
                 })
-                .addSpatialMarker(new Vector2d(32, 60), () -> {
-                    ArmTop(1);
+                .addDisplacementMarker(4, () -> {
+                    ArmMid(1);
                 })
-                .splineToSplineHeading(new Pose2d(26.25, 10.75, Math.toRadians(-100)), Math.toRadians(-120),
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(29)
-                )
-                .addSpatialMarker(new Vector2d(32 + clawOffset, 8.8 + clawOffset), () -> {
+                .splineToSplineHeading(new Pose2d(35.5, 23, Math.toRadians(-180)), Math.toRadians(-90))
+                .addSpatialMarker(new Vector2d(35.5, 23 + placeOffset), () -> {
                     ClawOpen();
                     sleep(45);
                 })
@@ -225,7 +222,7 @@ public class LeftAutonomous extends LinearOpMode {
                 .addDisplacementMarker(armOffset, () -> {
                     ArmSetPos(cycleArmPosition[0], 1);
                 })
-                .splineToConstantHeading(new Vector2d(36, 12), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(40, 15), Math.toRadians(-90))
                 .splineToSplineHeading(new Pose2d(stackX, stackY, Math.toRadians(0)), Math.toRadians(0))
                 .addSpatialMarker(new Vector2d(stackX, stackY), () -> {
                     ClawClose();
@@ -235,13 +232,13 @@ public class LeftAutonomous extends LinearOpMode {
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
                 .addDisplacementMarker(.25, () -> {
-                    ArmTop(.75);
+                    ArmMid(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX, placeY + .1, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX, placeY - .075, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
-                    TurnTablePos(TURNTABLE_RIGHT, 0.2);
+                    TurnTablePos(TURNTABLE_LEFT, 0.2);
                 })
-                .addSpatialMarker(new Vector2d(placeX + clawOffset, placeY + clawOffset), () -> {
+                .addSpatialMarker(new Vector2d(placeX + placeOffset, placeY), () -> {
                     ClawOpen();
                     sleep(125);
                 })
@@ -263,13 +260,13 @@ public class LeftAutonomous extends LinearOpMode {
 
         Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
                 .addDisplacementMarker(.25, () -> {
-                    ArmTop(.75);
+                    ArmMid(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX, placeY + .2, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX, placeY - .15, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
-                    TurnTablePos(TURNTABLE_RIGHT, 0.2);
+                    TurnTablePos(TURNTABLE_LEFT, 0.2);
                 })
-                .addSpatialMarker(new Vector2d(placeX + clawOffset, placeY + clawOffset), () -> {
+                .addSpatialMarker(new Vector2d(placeX + placeOffset, placeY), () -> {
                     ClawOpen();
                     sleep(125);
                 })
@@ -291,21 +288,21 @@ public class LeftAutonomous extends LinearOpMode {
 
         Trajectory traj7 = drive.trajectoryBuilder(traj6.end())
                 .addDisplacementMarker(.25, () -> {
-                    ArmTop(.75);
+                    ArmMid(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX - .5, placeY + .25, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX + .25, placeY - .5, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
-                    TurnTablePos(TURNTABLE_RIGHT, .2);
+                    TurnTablePos(TURNTABLE_LEFT, .2);
                 })
-                .addSpatialMarker(new Vector2d(placeX + clawOffset, placeY + clawOffset), () -> {
+                .addSpatialMarker(new Vector2d(placeX + placeOffset, placeY), () -> {
                     ClawOpen();
-                    sleep(125);
+                    sleep(75);
                 })
                 .build();
 
         Trajectory traj8 = drive.trajectoryBuilder(traj7.end())
                 .addDisplacementMarker(turnOffset, () -> {
-                    TurnTablePos(TURNTABLE_FRONT, 0.3);
+                    TurnTablePos(TURNTABLE_FRONT, 0.275);
                 })
                 .addDisplacementMarker(armOffset, () -> {
                     ArmSetPos(cycleArmPosition[3], 1);
@@ -313,21 +310,21 @@ public class LeftAutonomous extends LinearOpMode {
                 .lineToSplineHeading(new Pose2d(stackX, stackY, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(stackX, stackY), () -> {
                     ClawClose();
-                    sleep(100);
+                    sleep(125);
                 })
                 .build();
 
         Trajectory traj9 = drive.trajectoryBuilder(traj8.end())
                 .addDisplacementMarker(.25, () -> {
-                    ArmTop(.75);
+                    ArmMid(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX - 1, placeY + .65, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX - .25, placeY - .5, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
-                    TurnTablePos(TURNTABLE_RIGHT, 0.2);
+                    TurnTablePos(TURNTABLE_LEFT, 0.2);
                 })
-                .addSpatialMarker(new Vector2d(placeX, placeY + clawOffset), () -> {
+                .addSpatialMarker(new Vector2d(placeX + placeOffset, placeY), () -> {
                     ClawOpen();
-                    sleep(125);
+                    sleep(75);
                 })
                 .build();
 
@@ -341,45 +338,45 @@ public class LeftAutonomous extends LinearOpMode {
                 .lineToSplineHeading(new Pose2d(stackX, stackY, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(stackX, stackY), () -> {
                     ClawClose();
-                    sleep(100);
+                    sleep(125);
                 })
                 .build();
 
         Trajectory traj11 = drive.trajectoryBuilder(traj10.end())
                 .addDisplacementMarker(.5, () -> {
-                    ArmTop(1);
+                    ArmMid(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX - 1, placeY + .65, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX - .25, placeY - .6, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
-                    TurnTablePos(TURNTABLE_RIGHT, 0.2);
+                    TurnTablePos(TURNTABLE_LEFT, 0.2);
                 })
-                .addSpatialMarker(new Vector2d(placeX, placeY + clawOffset), () -> {
+                .addSpatialMarker(new Vector2d(placeX + placeOffset, placeY), () -> {
                     ClawOpen();
-                    sleep(125);
+                    sleep(75);
                 })
                 .build();
 
 
         Trajectory P1 = drive.trajectoryBuilder(traj11.end())
                 .addDisplacementMarker(4, () -> {
-                    TurnTablePos(TURNTABLE_FRONT, 1);
-                    ArmReset();
+                    TurnTablePos(TURNTABLE_FRONT, .25);
+                    ArmReset(1);
                 })
                 .forward(32)
                 .build();
 
         Trajectory P2 = drive.trajectoryBuilder(traj11.end())
                 .addDisplacementMarker(4, () -> {
-                    TurnTablePos(TURNTABLE_FRONT, 1);
-                    ArmReset();
+                    TurnTablePos(TURNTABLE_FRONT, .25);
+                    ArmReset(1);
                 })
-                .forward(9)
+                .forward(11)
                 .build();
 
         Trajectory P3 = drive.trajectoryBuilder(traj11.end())
                 .addDisplacementMarker(4, () -> {
-                    TurnTablePos(TURNTABLE_FRONT, 1);
-                    ArmReset();
+                    TurnTablePos(TURNTABLE_FRONT, .25);
+                    ArmReset(1);
                 })
                 .back(14)
                 .build();
@@ -413,34 +410,34 @@ public class LeftAutonomous extends LinearOpMode {
         }
 
 
-            webcam.stopStreaming();
-            telemetry.update();
+        webcam.stopStreaming();
+        telemetry.update();
 
-            drive.followTrajectory(traj1);
-            drive.followTrajectory(traj2);
-            drive.followTrajectory(traj3);
-            drive.followTrajectory(traj4);
-            drive.followTrajectory(traj5);
-            drive.followTrajectory(traj6);
-            drive.followTrajectory(traj7);
-            drive.followTrajectory(traj8);
-            drive.followTrajectory(traj9);
-            drive.followTrajectory(traj10);
-            drive.followTrajectory(traj11);
+        drive.followTrajectory(traj1);
+        drive.followTrajectory(traj2);
+        drive.followTrajectory(traj3);
+        drive.followTrajectory(traj4);
+        drive.followTrajectory(traj5);
+        drive.followTrajectory(traj6);
+        drive.followTrajectory(traj7);
+        drive.followTrajectory(traj8);
+        drive.followTrajectory(traj9);
+        drive.followTrajectory(traj10);
+        drive.followTrajectory(traj11);
 
-            // Parking Locations
-            if (ParkLoca == 1) {
-                drive.followTrajectory(P1);
-            } else if (ParkLoca == 2) {
-                drive.followTrajectory(P2);
-            } else if (ParkLoca == 3) {
-                drive.followTrajectory(P3);
-            } else {
-                drive.followTrajectory(P1);
-            }
+        // Parking Locations
+        if (ParkLoca == 1) {
+            drive.followTrajectory(P1);
+        } else if (ParkLoca == 2) {
+            drive.followTrajectory(P2);
+        } else if (ParkLoca == 3) {
+            drive.followTrajectory(P3);
+        } else {
+            drive.followTrajectory(P1);
+        }
 
 
-            sleep(1000);
+        sleep(1000);
     }
 
 
@@ -460,17 +457,17 @@ public class LeftAutonomous extends LinearOpMode {
         Arm.setTargetPosition(Constants.ArmConstants.highJuncArmPosition);
         Arm.setPower(power);
     }
-    private void ArmMid(){
+    private void ArmMid(double power){
         Arm.setTargetPosition(Constants.ArmConstants.midJuncArmPosition);
-        Arm.setPower(1);
+        Arm.setPower(power);
     }
-    private void ArmBot(){
+    private void ArmBot(double power){
         Arm.setTargetPosition(Constants.ArmConstants.lowArmPosition);
-        Arm.setPower(1);
+        Arm.setPower(power);
     }
 
-    private void ArmReset(){
-        Arm.setPower(1);
+    private void ArmReset(double power){
+        Arm.setPower(power);
         Arm.setTargetPosition(0);
     }
 

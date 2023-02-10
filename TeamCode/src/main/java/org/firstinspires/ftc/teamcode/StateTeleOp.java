@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 // Constants / Other
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.other.Constants;
 import org.firstinspires.ftc.teamcode.other.Threshold;
 
@@ -77,6 +78,12 @@ public class StateTeleOp extends LinearOpMode {
     boolean leftMacro = false;
     boolean rightMacro = false;
 
+    boolean antiTip = true;
+
+
+    boolean override = false;
+    boolean firstToggle = false;
+
 
     float speedLimiter = Constants.DriveConstants.speedLimiter;
 
@@ -88,6 +95,12 @@ public class StateTeleOp extends LinearOpMode {
     double clawOpenPosition = Constants.ClawConstants.openPosition;
     double clawClosePosition = Constants.ClawConstants.closePosition;
 
+
+    int endGameTime = 85_000;
+    int parkTime = 115_000;
+
+
+    ElapsedTime overrideTimer = new ElapsedTime();
 
 
     @Override
@@ -115,17 +128,17 @@ public class StateTeleOp extends LinearOpMode {
         BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        if(autoArmPosition > 50){
-            Arm.setTargetPosition(0);
-            Arm.setPower(armPower);
-            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
 
         TurnTable.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         TurnTable.setTargetPosition(0);
         TurnTable.setPower(turnPower);
         TurnTable.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Arm.setTargetPosition(0);
+        Arm.setPower(armPower);
+        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
         FrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -136,6 +149,7 @@ public class StateTeleOp extends LinearOpMode {
         FrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         FrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         BackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         Arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -154,25 +168,26 @@ public class StateTeleOp extends LinearOpMode {
         }
 
         ElapsedTime endGameTimer = new ElapsedTime();
+        ElapsedTime speedTimer = new ElapsedTime();
 
         gamepad1.setLedColor(0.25, 0.1, 0.6, 100000);
         gamepad2.setLedColor(0.25, 0.1, 0.6, 100000);
 
         while (opModeIsActive()) {
 
-            if(Threshold.innerThreshold(endGameTimer.milliseconds(), 55000, 0, 1000)){
-                if(Threshold.innerThreshold(endGameTimer.milliseconds(), 55000, 0, 250)){
+            if(Threshold.innerThreshold(endGameTimer.milliseconds(), endGameTime, 0, 1000)){
+                if(Threshold.innerThreshold(endGameTimer.milliseconds(), endGameTime, 0, 250)){
                     gamepad1.rumble(100);
                     gamepad2.rumble(100);
-                } else if (Threshold.innerThreshold(endGameTimer.milliseconds(), 55000, 500, 750)){
+                } else if (Threshold.innerThreshold(endGameTimer.milliseconds(), endGameTime, 500, 750)){
                     gamepad1.rumble(100);
                     gamepad2.rumble(100);
                 }
-            } else if(Threshold.innerThreshold(endGameTimer.milliseconds(), 85000, 0, 1000)){
-                if(Threshold.innerThreshold(endGameTimer.milliseconds(), 85000, 0, 250)){
+            } else if(Threshold.innerThreshold(endGameTimer.milliseconds(), parkTime, 0, 1000)){
+                if(Threshold.innerThreshold(endGameTimer.milliseconds(), parkTime, 0, 250)){
                     gamepad1.rumble(100);
                     gamepad2.rumble(100);
-                } else if (Threshold.innerThreshold(endGameTimer.milliseconds(), 8500, 500, 750)){
+                } else if (Threshold.innerThreshold(endGameTimer.milliseconds(), parkTime, 500, 750)){
                     gamepad1.rumble(100);
                     gamepad2.rumble(100);
                 }
@@ -190,161 +205,225 @@ public class StateTeleOp extends LinearOpMode {
             double robotRoll = imu.getAngularOrientation().secondAngle;
             double robotPitch = imu.getAngularOrientation().thirdAngle;
 
+
             if (Threshold.innerThresholdEqual(Math.toDegrees(robotRoll), 0, 3, 3)) {
                 robotRoll = 0;
-                RX = 0;
             }
             if (Threshold.innerThresholdEqual(Math.toDegrees(robotPitch), 0, 5, 5)) {
                 robotPitch = 0;
-                RX = 0;
             }
 
+            if(gamepad1.share){
+                antiTip = false;
+            }
 
+            if(!antiTip){
+                robotPitch = 0;
+                robotRoll = 0;
+            }
+
+            if(gamepad1.a && speedTimer.milliseconds() >= 100){
+                if(speedLimiter == 1.2){
+                    speedLimiter = 1.5f;
+                } else if (speedLimiter == 1.5){
+                    speedLimiter = 1.2f;
+                }
+                speedTimer = new ElapsedTime();
+            }
 
             Mecanum(LY, LX, RX, speedLimiter, robotRoll * 3, robotPitch * 3);
 
 
-            // Manual Arm Controls
-            int calculatedArmPosition;
+            if(gamepad2.share && gamepad2.options && overrideTimer.milliseconds() >= 250){
+                override = !override;
+                firstToggle = true;
+                overrideTimer = new ElapsedTime();
+            }
 
-            calculatedArmPosition = Math.round((-gamepad2.left_stick_y * armInterval));
+            if(override){
 
-            if (Arm.getCurrentPosition() + calculatedArmPosition > maxArmPosition) {
-                calculatedArmPosition = 0;
-                Arm.setTargetPosition(maxArmPosition + 5);
-            } else if (Arm.getCurrentPosition() + calculatedArmPosition < lowArmPosition) {
-                calculatedArmPosition = 0;
-                Arm.setTargetPosition(lowArmPosition - 5);
+                if(firstToggle){
+                    if(Claw.getPosition() == clawClosePosition){
+                        Claw.setPosition(clawOpenPosition);
+                    } else {
+                        Claw.setPosition(clawClosePosition);
+                    }
+                    Arm.setPower(0);
+                    TurnTable.setPower(0);
+
+                    Arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    TurnTable.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    TurnTable.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    firstToggle = false;
+                }
+
+
+                Arm.setPower(-gamepad2.left_stick_y);
+                TurnTable.setPower(gamepad2.right_stick_x * gamepad2.right_stick_x * gamepad2.right_stick_x);
+
+                // Claw Controls
+                if (gamepad2.b) {
+                    Claw.setPosition(clawOpenPosition);
+                }
+
+                if (gamepad2.a) {
+                    Claw.setPosition(clawClosePosition);
+                }
+
             } else {
-                if (Math.abs(gamepad2.left_stick_y) > .025) {
-                    Arm.setTargetPosition(Arm.getCurrentPosition() + calculatedArmPosition);
-                    Arm.setPower(Range.clip((Math.round(Math.abs(calculatedArmPosition)) / armInterval) + .25, -1, 1));
+                if(firstToggle){
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    TurnTable.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    TurnTable.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    TurnTable.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    firstToggle = false;
+                }
+
+                // Manual Arm Controls
+                int calculatedArmPosition;
+
+                calculatedArmPosition = Math.round((-gamepad2.left_stick_y * armInterval));
+
+                if (Arm.getCurrentPosition() + calculatedArmPosition > maxArmPosition) {
+                    calculatedArmPosition = 0;
+                    Arm.setTargetPosition(maxArmPosition + 5);
+                } else if (Arm.getCurrentPosition() + calculatedArmPosition < lowArmPosition) {
+                    calculatedArmPosition = 0;
+                    Arm.setTargetPosition(lowArmPosition - 5);
                 } else {
+                    if (Math.abs(gamepad2.left_stick_y) > .025) {
+                        Arm.setTargetPosition(Arm.getCurrentPosition() + calculatedArmPosition);
+                        Arm.setPower(Range.clip((Math.round(Math.abs(calculatedArmPosition)) / armInterval) + .25, 0, 1));
+                    }
+                }
+
+
+                // Automated Arm Controls
+                if (gamepad2.right_bumper) {
+                    Arm.setTargetPosition(highJuncArmPosition);
                     Arm.setPower(1);
                 }
-            }
 
+                if (gamepad2.right_trigger >= .025) {
+                    Arm.setTargetPosition(midJuncArmPosition);
+                    Arm.setPower(1);
+                }
 
-            // Automated Arm Controls
-            if(gamepad2.y){
-                Arm.setTargetPosition(highJuncArmPosition);
-                Arm.setPower(1);
-            }
+                if (gamepad2.left_bumper) {
+                    Arm.setTargetPosition(lowJuncArmPosition);
+                    Arm.setPower(1);
+                }
 
-            if(gamepad2.x){
-                Arm.setTargetPosition(midJuncArmPosition);
-                Arm.setPower(1);
-            }
+                if (gamepad2.left_trigger >= .025) {
+                    Arm.setTargetPosition(0);
+                    Arm.setPower(1);
+                }
 
-            if(gamepad2.b){
-                Arm.setTargetPosition(lowJuncArmPosition);
-                Arm.setPower(1);
-            }
+                // TurnTable Controls
+                if (gamepad2.dpad_up || gamepad2.dpad_left || gamepad2.dpad_right || gamepad2.dpad_down) {
+                    if (Arm.getCurrentPosition() < armThreshold) {
+                        Arm.setTargetPosition(armThreshold + 50);
+                        Arm.setPower(armPower);
+                        isLowered = true;
 
-            if(gamepad2.a){
-                Arm.setTargetPosition(0);
-                Arm.setPower(1);
-            }
+                        if (gamepad2.dpad_up) {
+                            upToggle = true;
+                        }
+                        if (gamepad2.dpad_left) {
+                            leftToggle = true;
+                        }
+                        if (gamepad2.dpad_right) {
+                            rightToggle = true;
+                        }
+                        if (gamepad2.dpad_down) {
+                            downToggle = true;
+                        }
 
-            // TurnTable Controls
-            if (gamepad2.dpad_up || gamepad2.dpad_left || gamepad2.dpad_right || gamepad2.dpad_down) {
-                if (Arm.getCurrentPosition() < armThreshold) {
-                    Arm.setTargetPosition(armThreshold);
-                    Arm.setPower(armPower);
-                    isLowered = true;
+                    } else if (Arm.getCurrentPosition() > armThreshold) {
+                        if (gamepad2.dpad_up) {
+                            TurnTable.setTargetPosition(turnTableFront);
+                            TurnTable.setPower(turnPower);
+                        }
+                        if (gamepad2.dpad_left) {
+                            TurnTable.setTargetPosition(turnTableLeft);
+                            TurnTable.setPower(turnPower);
+                        }
+                        if (gamepad2.dpad_right) {
+                            TurnTable.setTargetPosition(turnTableRight);
+                            TurnTable.setPower(turnPower);
+                        }
+                        if (gamepad2.dpad_down) {
+                            TurnTable.setTargetPosition(turnTableBack);
+                            TurnTable.setPower(turnPower);
+                        }
 
-                    if (gamepad2.dpad_up) {
-                        upToggle = true;
                     }
-                    if (gamepad2.dpad_left) {
-                        leftToggle = true;
-                    }
-                    if (gamepad2.dpad_right) {
-                        rightToggle = true;
-                    }
-                    if (gamepad2.dpad_down) {
-                        downToggle = true;
-                    }
+                }
 
-                } else if (Arm.getCurrentPosition() > armThreshold) {
-                    if (gamepad2.dpad_up) {
+                if (Arm.getCurrentPosition() > armThreshold && isLowered) {
+                    if (upToggle) {
                         TurnTable.setTargetPosition(turnTableFront);
                         TurnTable.setPower(turnPower);
                     }
-                    if (gamepad2.dpad_left) {
+                    if (leftToggle) {
                         TurnTable.setTargetPosition(turnTableLeft);
                         TurnTable.setPower(turnPower);
                     }
-                    if (gamepad2.dpad_right) {
+                    if (rightToggle) {
                         TurnTable.setTargetPosition(turnTableRight);
                         TurnTable.setPower(turnPower);
                     }
-                    if (gamepad2.dpad_down) {
+                    if (downToggle) {
                         TurnTable.setTargetPosition(turnTableBack);
                         TurnTable.setPower(turnPower);
                     }
+                    isLowered = false;
 
+                    upToggle = false;
+                    leftToggle = false;
+                    rightToggle = false;
+                    downToggle = false;
+                } else if (-gamepad2.left_stick_y <= -.025) {
+                    isLowered = false;
+
+                    upToggle = false;
+                    leftToggle = false;
+                    rightToggle = false;
+                    downToggle = false;
                 }
-            }
 
-            if (Arm.getCurrentPosition() > armThreshold && isLowered) {
-                if (upToggle) {
-                    TurnTable.setTargetPosition(turnTableFront);
-                    TurnTable.setPower(turnPower);
+
+                // Claw Controls
+                if (gamepad2.b) {
+                    Claw.setPosition(clawOpenPosition);
                 }
-                if (leftToggle) {
-                    TurnTable.setTargetPosition(turnTableLeft);
-                    TurnTable.setPower(turnPower);
+
+                if (gamepad2.a) {
+                    Claw.setPosition(clawClosePosition);
                 }
-                if (rightToggle) {
-                    TurnTable.setTargetPosition(turnTableRight);
-                    TurnTable.setPower(turnPower);
+
+
+                // Extra TurnTable Macros
+                if (gamepad2.x) {
+                    leftMacro = true;
                 }
-                if (downToggle) {
-                    TurnTable.setTargetPosition(turnTableBack);
-                    TurnTable.setPower(turnPower);
+
+                if (gamepad2.y) {
+                    rightMacro = true;
                 }
-                isLowered = false;
-
-                upToggle = false;
-                leftToggle = false;
-                rightToggle = false;
-                downToggle = false;
-            } else if (-gamepad2.left_stick_y <= -.025) {
-                isLowered = false;
-
-                upToggle = false;
-                leftToggle = false;
-                rightToggle = false;
-                downToggle = false;
-            }
 
 
-            // Claw Controls
-            if (gamepad2.left_trigger >= .025) {
-                Claw.setPosition(clawOpenPosition);
-            }
-            if (gamepad2.right_trigger >= .025) {
-                Claw.setPosition(clawClosePosition);
-            }
+                if (leftMacro) {
+                    LeftMacro();
+                }
 
+                if (rightMacro) {
+                    RightMacro();
+                }
 
-            // Extra TurnTable Macros
-            if (gamepad2.left_bumper) {
-                leftMacro = true;
-            }
-
-            if (gamepad2.right_bumper) {
-                rightMacro = true;
-            }
-
-
-            if(leftMacro){
-                LeftMacro();
-            }
-
-            if(rightMacro){
-                RightMacro();
             }
 
 
@@ -387,6 +466,7 @@ public class StateTeleOp extends LinearOpMode {
                 telemetry.addData("Arm Set Position", Arm.getTargetPosition());
                 telemetry.addData("Arm Position", Arm.getCurrentPosition());
                 telemetry.addData("Arm Power", Arm.getPower());
+                telemetry.addData("Arm Velocity", Arm.getVelocity());
 
                 telemetry.addLine();
                 telemetry.addData("Claw Position", Claw.getPosition());
