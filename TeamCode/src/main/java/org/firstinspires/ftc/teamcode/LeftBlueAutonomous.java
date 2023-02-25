@@ -22,8 +22,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 
-@Autonomous(name="Left Autonomous", group="! State", preselectTeleOp="State TeleOp")
-public class LeftAutonomous extends LinearOpMode {
+@Autonomous(name="LeftBlueAutonomous", group="! State", preselectTeleOp="State TeleOp")
+public class LeftBlueAutonomous extends LinearOpMode {
 
     // Chassis Wheels
     private DcMotor FrontLeft;
@@ -188,8 +188,8 @@ public class LeftAutonomous extends LinearOpMode {
         final int TURNTABLE_RIGHT = Constants.TurnTableConstants.TURNTABLE_RIGHT;
         final int TURNTABLE_BACK = Constants.TurnTableConstants.TURNTABLE_BACK;
 
-        float placeX = 26f;
-        float placeY = 10.75f;
+        float placeX = 25.5f;
+        float placeY = 12.5f;
 
         float turnOffset = 1f;
         float clawOffset = 1f;
@@ -208,11 +208,11 @@ public class LeftAutonomous extends LinearOpMode {
                 .addSpatialMarker(new Vector2d(32, 60), () -> {
                     ArmTop(1);
                 })
-                .splineToSplineHeading(new Pose2d(26.25, 10.75, Math.toRadians(-100)), Math.toRadians(-120),
+                .splineToSplineHeading(new Pose2d(25, 12, Math.toRadians(-100)), Math.toRadians(-120),
                         SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(29)
                 )
-                .addSpatialMarker(new Vector2d(32 + clawOffset, 8.8 + clawOffset), () -> {
+                .addSpatialMarker(new Vector2d(25 + clawOffset, 8.8 + clawOffset), () -> {
                     ClawOpen();
                     sleep(45);
                 })
@@ -237,7 +237,7 @@ public class LeftAutonomous extends LinearOpMode {
                 .addDisplacementMarker(.25, () -> {
                     ArmTop(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX, placeY + .1, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX - .75, placeY, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
                     TurnTablePos(TURNTABLE_RIGHT, 0.2);
                 })
@@ -265,7 +265,7 @@ public class LeftAutonomous extends LinearOpMode {
                 .addDisplacementMarker(.25, () -> {
                     ArmTop(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX, placeY + .2, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX + .5, placeY, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
                     TurnTablePos(TURNTABLE_RIGHT, 0.2);
                 })
@@ -293,7 +293,7 @@ public class LeftAutonomous extends LinearOpMode {
                 .addDisplacementMarker(.25, () -> {
                     ArmTop(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX - .5, placeY + .25, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX - .5, placeY, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
                     TurnTablePos(TURNTABLE_RIGHT, .2);
                 })
@@ -321,7 +321,7 @@ public class LeftAutonomous extends LinearOpMode {
                 .addDisplacementMarker(.25, () -> {
                     ArmTop(.75);
                 })
-                .lineToSplineHeading(new Pose2d(placeX - 1, placeY + .65, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX - 1, placeY, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
                     TurnTablePos(TURNTABLE_RIGHT, 0.2);
                 })
@@ -349,7 +349,7 @@ public class LeftAutonomous extends LinearOpMode {
                 .addDisplacementMarker(.5, () -> {
                     ArmTop(1);
                 })
-                .lineToSplineHeading(new Pose2d(placeX - 1, placeY + .65, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(placeX - 1, placeY, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 10), () -> {
                     TurnTablePos(TURNTABLE_RIGHT, 0.2);
                 })
@@ -413,34 +413,34 @@ public class LeftAutonomous extends LinearOpMode {
         }
 
 
-            webcam.stopStreaming();
-            telemetry.update();
+        webcam.stopStreaming();
+        telemetry.update();
 
-            drive.followTrajectory(traj1);
-            drive.followTrajectory(traj2);
-            drive.followTrajectory(traj3);
-            drive.followTrajectory(traj4);
-            drive.followTrajectory(traj5);
-            drive.followTrajectory(traj6);
-            drive.followTrajectory(traj7);
-            drive.followTrajectory(traj8);
-            drive.followTrajectory(traj9);
-            drive.followTrajectory(traj10);
-            drive.followTrajectory(traj11);
+        drive.followTrajectory(traj1);
+        drive.followTrajectory(traj2);
+        drive.followTrajectory(traj3);
+        drive.followTrajectory(traj4);
+        drive.followTrajectory(traj5);
+        drive.followTrajectory(traj6);
+        drive.followTrajectory(traj7);
+        drive.followTrajectory(traj8);
+        drive.followTrajectory(traj9);
+        drive.followTrajectory(traj10);
+        drive.followTrajectory(traj11);
 
-            // Parking Locations
-            if (ParkLoca == 1) {
-                drive.followTrajectory(P1);
-            } else if (ParkLoca == 2) {
-                drive.followTrajectory(P2);
-            } else if (ParkLoca == 3) {
-                drive.followTrajectory(P3);
-            } else {
-                drive.followTrajectory(P1);
-            }
+        // Parking Locations
+        if (ParkLoca == 1) {
+            drive.followTrajectory(P1);
+        } else if (ParkLoca == 2) {
+            drive.followTrajectory(P2);
+        } else if (ParkLoca == 3) {
+            drive.followTrajectory(P3);
+        } else {
+            drive.followTrajectory(P1);
+        }
 
 
-            sleep(1000);
+        sleep(1000);
     }
 
 

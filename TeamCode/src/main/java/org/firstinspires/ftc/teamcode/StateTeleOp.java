@@ -57,9 +57,6 @@ public class StateTeleOp extends LinearOpMode {
     public static int armInterval = Constants.ArmConstants.armInterval;
 
 
-    public static int autoArmPosition = LeftAutonomous.endingArmPosition;
-    public static int autoTurnTablePosition = LeftAutonomous.endingTurnTablePosition;
-
 
     boolean inArm = false;
     boolean lowArm = false;
@@ -80,6 +77,7 @@ public class StateTeleOp extends LinearOpMode {
 
     boolean antiTip = true;
 
+    boolean clawToggle = false;
 
     boolean override = false;
     boolean firstToggle = false;
@@ -101,6 +99,8 @@ public class StateTeleOp extends LinearOpMode {
 
 
     ElapsedTime overrideTimer = new ElapsedTime();
+
+
 
 
     @Override
@@ -213,7 +213,7 @@ public class StateTeleOp extends LinearOpMode {
                 robotPitch = 0;
             }
 
-            if(gamepad1.share){
+            if(gamepad1.options){
                 antiTip = false;
             }
 
@@ -399,10 +399,18 @@ public class StateTeleOp extends LinearOpMode {
                 // Claw Controls
                 if (gamepad2.b) {
                     Claw.setPosition(clawOpenPosition);
+                    clawToggle = false;
                 }
 
                 if (gamepad2.a) {
                     Claw.setPosition(clawClosePosition);
+                    clawToggle = true;
+                }
+
+                if(clawToggle){
+                    Claw.setPosition(clawClosePosition);
+                } else {
+                    Claw.setPosition(clawOpenPosition);
                 }
 
 

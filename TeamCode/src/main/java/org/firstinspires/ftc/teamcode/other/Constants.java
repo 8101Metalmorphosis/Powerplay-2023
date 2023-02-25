@@ -30,8 +30,8 @@ public class Constants {
     }
 
     public static class ClawConstants {
-        public static double closePosition = .25;
-        public static double openPosition = 1;
+        public static double closePosition = 0;
+        public static double openPosition = .36;
     }
 
     public static class OtherConstants {
